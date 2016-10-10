@@ -1,0 +1,23 @@
+#
+# .gitconfig
+#
+[color]
+    ui     = auto
+    status = auto
+    diff   = auto
+    branch = auto
+    grep   = auto
+[include]
+    path = ~/.gitconfig.local
+[merge]
+    # マージ時の fast forward を原則として禁止する
+    #
+    # fast forward を用いるとどこから分岐したか不明確になるため
+    ff = false
+[pull]
+    # プル時の マージを禁止する
+    # 
+    # 以下を参照
+    #   Git pullを使うべきでない３つの理由
+    #   URL: http://dqn.sakusakutto.jp/2012/11/git_pull.html
+    rebase = preserve
