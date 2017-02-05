@@ -20,49 +20,38 @@
 #include "defines.hpp"
 
 namespace variant {
-
 /**
  *
  */
 class VARIANT_API Variant
 {
 public:
-    using String         = std::string;
-    using char_type      = String::traits_type::char_type;
-    using traits_type    = String::traits_type;
-    using allocator_type = String::allocator_type;
-
     Variant() = default;
     Variant(const Variant &rhs) = default;
     Variant& operator=(const Variant &rhs) = default;
 
     Variant(std::nullptr_t null);
-    Variant(bool value);
-    Variant(int32_t value);
-    Variant(int64_t value);
-    Variant(uint32_t value);
-    Variant(uint64_t value);
-    Variant(double value);
-    Variant(char_type *value);
-    Variant(const String &value);
+    Variant(bool b);
+    Variant(int32_t i);
+    Variant(double d);
+    Variant(char *str);
+    Variant(const std::string &str);
 
     bool to_bool() const;
-    int64_t to_int() const;
-    uint64_t to_uint() const;
+    int32_t to_int() const;
     double to_double() const;
-    String to_string() const;
+    std::string to_string() const;
+    std::wstring to_wstring() const;
 
     operator bool() const;
-    operator int64_t() const;
-    operator uint64_t() const;
+    operator int32_t() const;
     operator double() const;
-    operator String() const;
+    operator std::string() const;
 
 private:
     class Holder;
     class BoolHolder;
     class IntHolder;
-    class UIntHolder;
     class DoubleHolder;
     class StringHolder;
     class HolderFactory;
