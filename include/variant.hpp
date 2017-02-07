@@ -1,14 +1,14 @@
-//===------------------ Instruction class definition ------------*- C++ -*-===//
+﻿//===------------------ Instruction class definition ------------*- C++ -*-===//
 //
-// bool, int, double, string �����e���鑽�p�^
+// bool, int, double, string を許容する多用型
 //
-// �{�t�@�C���́C2����BSD���C�Z���X�ɏ]���Ĕz�z����܂��D
-// �ڍׂ́ALICENSE.TXT���Q�Ƃ��Ă��������B
+// 本ファイルは，2条項BSDライセンスに従って配布されます．
+// 詳細は、LICENSE.TXTを参照してください。
 //
 //===----------------------------------------------------------------------===//
 ///
 /// \file
-/// ���̃N���X�ɂ́C���p�^�N���X(variant)�̃N���X�錾���܂܂�܂��D
+/// このクラスには，多用型クラス(variant)のクラス宣言が含まれます．
 ///
 //===----------------------------------------------------------------------===//
 #pragma once
@@ -19,10 +19,10 @@
 #include "defines.hpp"
 
 namespace variant {
-/// boo, int, double, string ��4��̌^���_��ɑ���ł��鑽�p�^�ł�.
+/// boo, int, double, string の4種の型を柔軟に代入できる多用型です.
 ///
-/// �{�N���X�́Cbool. int, double ,string �ɓn��4��ނ̊�{�^��
-/// �_��ɑ���ł��鑽�p�^�ł��D�Ⴆ�΁C�ȉ��̃R�[�h�������܂��D
+/// 本クラスは，bool. int, double ,string に渡る4種類の基本型を
+/// 柔軟に代入できる多用型です．例えば，以下のコードを許します．
 /// \code
 ///     Variant v1 = true;     // ok
 ///     Variant v2 = 100;      // ok
@@ -30,20 +30,20 @@ namespace variant {
 ///     Variant v4 = "string;  // ok
 /// \endcode
 ///
-/// ���ꂼ��̌^�����R�Ȍ`�ŕێ��ł��܂��D
-/// ����́C���̌���Œ񋟂���� object �� Variant, var�^�̋�����
-/// ���Ă��܂����C�ȉ��̋@�\�͒񋟂��Ă��܂���D
-///    - �Z�p���Z(+, -, *, /)
-///    - �u�[�����Z(|, &, ||, &&)
-///    - �V�t�g���Z(<<. >>)
-/// ����牉�Z���s�����߂ɂ́C��x���̌^�ɕϊ��������K�v������܂��D
+/// それぞれの型を自然な形で保持できます．
+/// これは，他の言語で提供される object や Variant, var型の挙動と
+/// 似ていますが，以下の機能は提供していません．
+///    - 算術演算(+, -, *, /)
+///    - ブール演算(|, &, ||, &&)
+///    - シフト演算(<<. >>)
+/// これら演算を行うためには，一度元の型に変換し直す必要があります．
 ///
-/// ���̗��R�́Cint, double, string �Ȃǂ̒l���_��ɕێ����邱�Ƃ�
-/// �ړI�̂��߂ł��D�܂��C���Z�n���_��ɑΉ��ł��Ȃ��̂����R��1�ł��D
+/// その理由は，int, double, string などの値を柔軟に保持することが
+/// 目的のためです．また，演算系も柔軟に対応できないのも理由の1つです．
 ///
-/// �{�N���X�́C�^�ϊ����C���s����Ɨ�O(bat_cast)�𑗏o���܂��D
-/// �ȉ��̃R�[�h�́C���l�ɕϊ��ł��Ȃ�������𐔒l�ɕϊ������Ƃ��̗�ł��D
-/// varinat::bat_cast �𑗏o���܂��D
+/// 本クラスは，型変換時，失敗すると例外(bat_cast)を送出します．
+/// 以下のコードは，数値に変換できない文字列を数値に変換したときの例です．
+/// varinat::bat_cast を送出します．
 /// \code
 ///     Variant v = "Don't cast to int32_t";
 ///     try {
@@ -53,7 +53,7 @@ namespace variant {
 ///     }
 /// \endcode
 ///
-/// ��O�̑��o����������Ƃ��́CtryCast ��p���ăL���X�g�\�����f���܂��D
+/// 例外の送出を避けたいときは，tryCast を用いてキャスト可能か判断します．
 /// \code
 ///    Variant v = "Don't cast to int32_t";
 ///
@@ -71,12 +71,12 @@ public:
     Variant(const Variant &rhs) = default;
     Variant& operator=(const Variant &rhs) = default;
 
-    /// null pointer �̃R���X�g���N�^.
+    /// null pointer のコンストラクタ.
     ///
-    /// �{�N���X�� null pointer ����̕ϊ������e���܂���D
-    /// nullptr �������悤�Ƃ���ƃR���p�C���G���[�ƂȂ�܂��D
-    /// �܂��CNULL ���������Ƃ��́C32bit �����t�������� 0 ��
-    /// ���Ȃ���܂��D
+    /// 本クラスは null pointer からの変換を許容しません．
+    /// nullptr を代入しようとするとコンパイルエラーとなります．
+    /// また，NULL を代入したときは，32bit 符号付き整数の 0 と
+    /// 見なされます．
     ///
     /// \code
     ///     Variant v(nullptr);   // NG, C2280
@@ -86,60 +86,60 @@ public:
     /// \endcode
     explicit  Variant(std::nullptr_t null) = delete;
 
-    /// bool�^�̃R���X�g���N�^.
+    /// bool型のコンストラクタ.
     ///
-    /// bool�^����̕ϊ������e���邽�߂�
-    /// �R���X�g���N�^���`���Ă��܂��D
-    /// explicit �錾���Ȃ��͈̂Ӑ}���ꂽ���̂ł��D
+    /// bool型からの変換を許容するために
+    /// コンストラクタを定義しています．
+    /// explicit 宣言がないのは意図されたものです．
     ///
-    /// ��̗�:
+    /// 具体例:
     /// \code
     ///     Variant v = true;             // ok
     ///     std::cout << v << std::endl;  // print "1";
     ///     std::cout << std::boolalpha << v << std::endl;  // print "true";
     /// \endcode
     ///
-    /// \param value false ���� true �̐^�U�l(bool�^)
+    /// \param value false から true の真偽値(bool型)
     Variant(bool value);
 
-    /// int32_t�^�̃R���X�g���N�^.
+    /// int32_t型のコンストラクタ.
     ///
-    /// int32_t�^����̕ϊ������e���邽�߂�
-    /// �R���X�g���N�^���`���Ă��܂��D
-    /// explicit �錾���Ȃ��͈̂Ӑ}���ꂽ���̂ł��D
+    /// int32_t型からの変換を許容するために
+    /// コンストラクタを定義しています．
+    /// explicit 宣言がないのは意図されたものです．
     ///
-    /// ��̗�:
+    /// 具体例:
     /// \code
     ///     Variant v = 100;              // ok
     ///     std::cout << v << std::endl;  // print "100";
     /// \endcode
     ///
-    /// \param value 32bit �����t������
+    /// \param value 32bit 符号付き整数
     Variant(int32_t value);
 
-    /// double�^�̃R���X�g���N�^.
+    /// double型のコンストラクタ.
     ///
-    /// double�^����̕ϊ������e���邽�߂�
-    /// �R���X�g���N�^���`���Ă��܂��D
-    /// explicit �錾���Ȃ��͈̂Ӑ}���ꂽ���̂ł��D
+    /// double型からの変換を許容するために
+    /// コンストラクタを定義しています．
+    /// explicit 宣言がないのは意図されたものです．
     ///
-    /// ��̗�:
+    /// 具体例:
     /// \code
     ///     Variant v = 0.001;            // ok
     ///     std::cout << v << std::endl;  // print "0.001";
     /// \endcode
     ///
-    /// \param value float�ȏ�Clong double �ȉ��̕��������_
-    ///              (�قƂ�ǂ̃V�X�e���ł� 64bit)
+    /// \param value float以上，long double 以下の浮動小数点
+    ///              (ほとんどのシステムでは 64bit)
     Variant(double value);
 
-    /// ������^�̃R���X�g���N�^.
+    /// 文字列型のコンストラクタ.
     ///
-    /// ������^����̕ϊ������e���邽�߂�
-    /// �R���X�g���N�^���`���Ă��܂��D
-    /// explicit �錾���Ȃ��͈̂Ӑ}���ꂽ���̂ł��D
+    /// 文字列型からの変換を許容するために
+    /// コンストラクタを定義しています．
+    /// explicit 宣言がないのは意図されたものです．
     ///
-    /// ��̗�:
+    /// 具体例:
     /// \code
     ///     Variant v = "foo";       // ok
     ///     std::cout << v << std::endl;  // print "foo";
@@ -147,7 +147,7 @@ public:
     ///     std::cout << v << std::endl;  // print "bar";
     /// \endcode
     ///
-    /// \param str Null�����ŏI������}���`�o�C�g����
+    /// \param str Null文字で終了するマルチバイト文字
     ///
     /// @{
     Variant(char *str);
@@ -155,20 +155,20 @@ public:
     Variant(const std::string &str);
     /// @}
 
-    /// bool�^�ւ̕ϊ����s���܂�.
+    /// bool型への変換を行います.
     ///
-    /// �ێ�����Ă��鐔�l�C������� bool�^�֕ϊ����܂��D
+    /// 保持されている数値，文字列を bool型へ変換します．
     ///   - int, double
     ///       - 0    : false
-    ///       - 0�ȊO: true 
+    ///       - 0以外: true 
     ///   - string
     ///       - "0": false
-    ///       - "0" �ȊO�̐��l�ϊ��\�ȕ�����: true
-    ///       - "false": false (False, fAlse �Ȃǂ̑啶���������̈Ⴂ�͋z��)
-    ///       - "true" : true  (True, truE �Ȃǂ̑啶���������̈Ⴂ�͋z��)
+    ///       - "0" 以外の数値変換可能な文字列: true
+    ///       - "false": false (False, fAlse などの大文字小文字の違いは吸収)
+    ///       - "true" : true  (True, truE などの大文字小文字の違いは吸収)
     ///
-    /// ���̃��\�b�h�́C��L�̂悤�� bool�^�֕ϊ��ł��Ȃ��Ƃ��C
-    /// variant::bat_cast �𑗏o���܂��D
+    /// このメソッドは，上記のように bool型へ変換できないとき，
+    /// variant::bat_cast を送出します．
     /// \code
     ///     Variant v = "false";
     ///     bool i    = v.toBool();  // to false;
