@@ -21,8 +21,29 @@
 #include <codecvt>
 #include <locale>
 #include <sstream>
+#include <vector>
 
 namespace variant {
+#if defined(_WIN32) || defined(_WIN64) || defined(_MSC_VER)
+std::wstring to_wstring(const std::string &s)
+{
+    std::vector<wchar_t> wcs(s.size() + 1);
+    size_t               len = 0;
+    mbstowcs_s(&len, &wcs[0], wcs.size(), s.c_str(), _TRUNCATE);
+    return std::wstring(wcs.cbegin(), wcs.cend());
+}
+#else
+std::wstring to_wstring(const std::string &s)
+{
+    std::mbstate_t state = std::mbstate_t();
+    const char     *mbs = s.c_str();
+    const int      len = 1 + std::mbsrtowcs(nullptr, &mbs, 0, &state);
+    std::vector<wchar_t> wcs(len);
+    std::mbsrtowcs(&wcs[0], &mbs, len, &state);
+    return std::wstring(wcs.cbegin(), wcs.cend());
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Variant::Holder
@@ -303,13 +324,13 @@ public:
 
     virtual std::ostream& writeOstream(std::ostream& os) const
     {
-        return os << str_;
+        return os << str_.c_str();
     }
 
     virtual std::wostream& writeWOstream(std::wostream &os) const
     {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
-        return os << conv.from_bytes(str_);
+        const std::wstring &ws = to_wstring(str_);
+        return os << ws.c_str();
     }
 private:
     std::string toLower(const std::string &s) const
@@ -419,20 +440,9 @@ std::string Variant::toString() const
     return holder_->to_string();
 }
 
-std::wstring Variant::toWString(const std::locale &) const
+std::wstring Variant::toWString() const
 {
-    const std::string &s    = holder_->to_string();
-    const char        *mbs  = s.c_str();
-    wchar_t           *wcs  = new wchar_t[s.size() + 1];
-
-#if defined(_WIN32) || defined(_WIN64) || defined(_MSC_VER)
-    const size_t size = s.size() + 1;
-    size_t       len  = 0;
-    mbstowcs_s(&len, wcs, size, mbs, _TRUNCATE);
-#endif
-    std::wstring ws(wcs);
-    delete[] wcs;
-    return ws;
+    return to_wstring(holder_->to_string());
 }
 
 bool Variant::tryCast(bool &result) const

@@ -243,8 +243,7 @@ public:
     /// \param locale ロケール指定
     ///
     /// 本メソッドからは例外が送出されることはありません(不送出保証)．
-    std::wstring toWString(
-            const std::locale &locale = std::locale()) const;
+    std::wstring toWString() const;
 
     /// 保持されている元の型が bool 型のとき true を返します
     ///

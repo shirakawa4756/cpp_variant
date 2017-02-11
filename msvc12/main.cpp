@@ -7,11 +7,15 @@
 
 int main()
 {
-    variant::Variant values[] = { "test string context",
+    setlocale(LC_ALL, "");
+    _wsetlocale(LC_ALL, L"");
+
+    variant::Variant values[] = {
             false, true, 0, 1, -10, 10, 0.0, 1.0, -10.1, 10.1,
             "false", "true", "0", "1", "-10", "10", "0.0", "1.0",
-            "-10.2", "10.2", "anything", "Convert to?" };
+            "-10.2", "10.2", "anything", "Convert to?", "“ú–{Œê‘åä•v?" };
 
+    std::cout << "  Convert to Double! (tryCast)" << std::endl;
     for (const auto &v : values) {
         double result = 0;
         if (v.tryCast(result)) {
@@ -25,10 +29,12 @@ int main()
         }
     }
 
+    std::cout << "  Convert to wchar_t." << std::endl;
     for (const auto &v : values) {
         std::wcout << v << std::endl;
     }
 
+    std::cout << "  Convert to various types using cast." << std::endl;
     for (const auto &v : values) {
         bool         b   = v;
         int32_t      i32 = v;
@@ -43,7 +49,6 @@ int main()
                   << d   << ", "
                   << s   << std::endl;
     }
-
 
     return 0;
 }
