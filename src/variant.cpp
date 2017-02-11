@@ -13,8 +13,14 @@
 //===----------------------------------------------------------------------===//
 #include "variant.hpp"
 
+#if defined(_WIN32) || defined(_WIN64) || defined(_MSC_VER)
+    #include <Windows.h>
+#endif
+
 #include <algorithm>
+#include <codecvt>
 #include <locale>
+#include <sstream>
 
 namespace variant {
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,10 +33,16 @@ class Variant::Holder
 public:
     virtual ~Holder() = default;
     virtual bool to_bool() const = 0;
-    virtual int32_t to_int() const = 0;
+    virtual int64_t to_int() const = 0;
     virtual double to_double() const = 0;
     virtual std::string to_string() const = 0;
-    virtual std::ostream& writeOstream(std::ostream& os) const = 0;
+
+    virtual bool can_to_bool() const = 0;
+    virtual bool can_to_int() const = 0;
+    virtual bool can_to_double() const = 0;
+
+    virtual std::ostream& writeOstream(std::ostream &os) const = 0;
+    virtual std::wostream& writeWOstream(std::wostream &os) const = 0;
 }; // Variant::Holder
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,7 +63,7 @@ public:
         return value_;
     }
 
-    virtual int32_t to_int() const
+    virtual int64_t to_int() const
     {
         return value_;
     }
@@ -66,11 +78,30 @@ public:
         return std::to_string(value_);
     }
 
+    virtual bool can_to_bool() const
+    {
+        return true;
+    }
+
+    virtual bool can_to_int() const
+    {
+        return true;
+    }
+
+    virtual bool can_to_double() const
+    {
+        return true;
+    }
+
     virtual std::ostream& writeOstream(std::ostream& os) const
     {
         return os << value_;
     }
 
+    virtual std::wostream& writeWOstream(std::wostream &os) const
+    {
+        return os << value_;
+    }
 private:
     bool value_;
 }; // class Variant::BoolHolder
@@ -94,7 +125,7 @@ public:
         return static_cast<bool>(value_ != 0);
     }
 
-    virtual int32_t to_int() const
+    virtual int64_t to_int() const
     {
         return value_;
     }
@@ -108,12 +139,32 @@ public:
         return std::to_string(value_);
     }
 
+    virtual bool can_to_bool() const
+    {
+        return true;
+    }
+
+    virtual bool can_to_int() const
+    {
+        return true;
+    }
+
+    virtual bool can_to_double() const
+    {
+        return true;
+    }
+
     virtual std::ostream& writeOstream(std::ostream& os) const
     {
         return os << value_;
     }
+
+    virtual std::wostream& writeWOstream(std::wostream &os) const
+    {
+        return os << value_;
+    }
 private:
-    int32_t value_;
+    int64_t value_;
 }; // class Variant::IntHolder
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -135,7 +186,7 @@ public:
         return static_cast<bool>(value_ != 0);
     }
 
-    virtual int32_t to_int() const
+    virtual int64_t to_int() const
     {
         return static_cast<int32_t>(value_);
     }
@@ -145,12 +196,32 @@ public:
         return value_;
     }
 
+    virtual bool can_to_bool() const
+    {
+        return true;
+    }
+
+    virtual bool can_to_int() const
+    {
+        return true;
+    }
+
+    virtual bool can_to_double() const
+    {
+        return true;
+    }
+
     virtual std::string to_string() const
     {
         return std::to_string(value_);
     }
 
     virtual std::ostream& writeOstream(std::ostream& os) const
+    {
+        return os << value_;
+    }
+
+    virtual std::wostream& writeWOstream(std::wostream &os) const
     {
         return os << value_;
     }
@@ -185,9 +256,9 @@ public:
 
     }
 
-    virtual int32_t to_int() const
+    virtual int64_t to_int() const
     {
-        return std::stoi(str_);
+        return std::stoll(str_);
     }
 
     virtual double to_double() const
@@ -200,9 +271,45 @@ public:
         return str_;
     }
 
+    virtual bool can_to_bool() const
+    {
+        if (toLower(str_) == "true") return true;
+        if (toLower(str_) == "false") return true;
+        return can_to_double();
+    }
+
+    virtual bool can_to_int() const
+    {
+        try {
+            std::stoll(str_);
+            return true;
+        } catch (const std::exception &)
+        {
+            return false;
+        }
+    }
+
+    virtual bool can_to_double() const
+    {
+        try {
+            std::stod(str_);
+            return true;
+        }
+        catch (const std::exception &)
+        {
+            return false;
+        }
+    }
+
     virtual std::ostream& writeOstream(std::ostream& os) const
     {
         return os << str_;
+    }
+
+    virtual std::wostream& writeWOstream(std::wostream &os) const
+    {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
+        return os << conv.from_bytes(str_);
     }
 private:
     std::string toLower(const std::string &s) const
@@ -242,6 +349,7 @@ public:
 
     static std::shared_ptr<Holder> make_holder(const char *s)
     {
+        if (s == nullptr) return std::make_shared<StringHolder>("");
         return std::make_shared<StringHolder>(s);
     }
 
@@ -256,6 +364,11 @@ public:
 // Variant Class
 //
 ///////////////////////////////////////////////////////////////////////////////
+Variant::Variant()
+  : holder_(HolderFactory::make_holder(0))
+{
+}
+
 Variant::Variant(bool value)
   : holder_(HolderFactory::make_holder(value))
 {
@@ -268,11 +381,6 @@ Variant::Variant(int32_t value)
 
 Variant::Variant(double value)
   : holder_(HolderFactory::make_holder(value))
-{
-}
-
-Variant::Variant(char *s)
-  : holder_(HolderFactory::make_holder(s))
 {
 }
 
@@ -293,6 +401,11 @@ bool Variant::toBool() const
 
 int32_t Variant::toInt() const
 {
+    return static_cast<int32_t>(holder_->to_int());
+}
+
+int64_t Variant::toInt64() const
+{
     return holder_->to_int();
 }
 
@@ -306,6 +419,93 @@ std::string Variant::toString() const
     return holder_->to_string();
 }
 
+std::wstring Variant::toWString(const std::locale &) const
+{
+    const std::string &s    = holder_->to_string();
+    const char        *mbs  = s.c_str();
+    wchar_t           *wcs  = new wchar_t[s.size() + 1];
+
+#if defined(_WIN32) || defined(_WIN64) || defined(_MSC_VER)
+    const size_t size = s.size() + 1;
+    size_t       len  = 0;
+    mbstowcs_s(&len, wcs, size, mbs, _TRUNCATE);
+#endif
+    std::wstring ws(wcs);
+    delete[] wcs;
+    return ws;
+}
+
+bool Variant::tryCast(bool &result) const
+{
+    if (!holder_->can_to_bool()) return false;
+    result = holder_->to_bool();
+    return true;
+}
+
+bool Variant::tryCast(int32_t &result) const
+{
+    if (!holder_->can_to_int()) return false;
+    result = static_cast<int32_t>(holder_->to_int());
+    return true;
+}
+
+bool Variant::tryCast(int64_t &result) const
+{
+    if (!holder_->can_to_int()) return false;
+    result = holder_->to_int();
+    return true;
+}
+
+bool Variant::tryCast(double &result) const
+{
+    if (!holder_->can_to_double()) return false;
+    result = holder_->to_double();
+    return true;
+}
+
+Variant::operator bool() const
+{
+    if (!holder_->can_to_bool()) {
+        return false;
+    }
+    return toBool();
+}
+
+Variant::operator int32_t() const
+{
+    if (!holder_->can_to_int()) {
+        return false;
+    }
+    return toInt();
+}
+
+Variant::operator int64_t() const
+{
+    if (!holder_->can_to_int()) {
+        return false;
+    }
+    return toInt64();
+}
+
+Variant::operator double() const
+{
+    if (!holder_->can_to_double()) {
+        return 0;
+    }
+    return toDouble();
+}
+
+Variant::operator std::string() const
+{
+    return toString();
+
+}
+
+Variant::operator std::wstring() const
+{
+    return toWString();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // operator<< function( of variant::Variant)
@@ -314,5 +514,15 @@ std::string Variant::toString() const
 std::ostream& operator<<(std::ostream& os, const Variant &var)
 {
     return var.holder_->writeOstream(os);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// operator<< function( of variant::Variant)
+//
+///////////////////////////////////////////////////////////////////////////////
+std::wostream& operator<<(std::wostream& os, const Variant &var)
+{
+    return var.holder_->writeWOstream(os);
 }
 } // namespace variant
