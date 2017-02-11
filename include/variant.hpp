@@ -404,7 +404,7 @@ public:
     /// 出力ストリームをサポートするために friend 宣言されています
     /// @{
     friend std::ostream& operator<<(std::ostream& os, const Variant &var);
-    friend std::wostream& operator<<(std::wostream& os, const Variant &var);
+    friend std::wostream& operator<<(std::wostream& wos, const Variant &var);
     /// @}
 private:
     class Holder;
@@ -417,5 +417,5 @@ private:
 }; // class class VARIANT_API Variant_
 
 std::ostream& operator<<(std::ostream& os, const Variant &var);
-std::wostream& operator<<(std::wostream& os, const Variant &var);
+std::wostream& operator<<(std::wostream& wos, const Variant &var);
 } // namespace variant
