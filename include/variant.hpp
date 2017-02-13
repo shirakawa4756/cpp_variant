@@ -10,7 +10,7 @@
 /// \file
 /// このクラスには，多用型クラス(variant)のクラス宣言が含まれます．
 ///
-/// \autour shirakawa4756@github.com
+/// \author  shirakawa4756@github.com
 ///
 //===----------------------------------------------------------------------===//
 #pragma once
@@ -403,8 +403,10 @@ public:
 
     /// 出力ストリームをサポートするために friend 宣言されています
     /// @{
-    friend std::ostream& operator<<(std::ostream& os, const Variant &var);
-    friend std::wostream& operator<<(std::wostream& wos, const Variant &var);
+    friend VARIANT_API
+        std::ostream& operator<<(std::ostream& os, const Variant &var);
+    friend VARIANT_API
+        std::wostream& operator<<(std::wostream& wos, const Variant &var);
     /// @}
 private:
     class Holder;
@@ -416,6 +418,6 @@ private:
     std::shared_ptr<const Holder> holder_;
 }; // class class VARIANT_API Variant_
 
-std::ostream& operator<<(std::ostream& os, const Variant &var);
-std::wostream& operator<<(std::wostream& wos, const Variant &var);
+VARIANT_API std::ostream& operator<<(std::ostream& os, const Variant &var);
+VARIANT_API std::wostream& operator<<(std::wostream& wos, const Variant &var);
 } // namespace variant
