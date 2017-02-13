@@ -153,6 +153,8 @@ public:
     virtual double toDouble() const = 0;
     virtual std::string toString() const = 0;
 
+    virtual Types type() const = 0;
+
     virtual bool canCastToBool() const = 0;
     virtual bool canCastToInt() const = 0;
     virtual bool canCastToDouble() const = 0;
@@ -187,6 +189,11 @@ public:
     virtual double toDouble() const
     {
         return value_;
+    }
+
+    virtual Types type() const
+    {
+        return Types::TYPE_BOOL;
     }
 
     virtual std::string toString() const
@@ -255,6 +262,11 @@ public:
         return std::to_string(value_);
     }
 
+    virtual Types type() const
+    {
+        return Types::TYPE_INT;
+    }
+
     virtual bool canCastToBool() const
     {
         return true;
@@ -310,6 +322,11 @@ public:
     virtual double toDouble() const
     {
         return value_;
+    }
+
+    virtual Types type() const
+    {
+        return Types::TYPE_DOUBLE;
     }
 
     virtual bool canCastToBool() const
@@ -388,6 +405,11 @@ public:
     virtual std::string toString() const
     {
         return str_;
+    }
+
+    virtual Types type() const
+    {
+        return Types::TYPE_STRING;
     }
 
     virtual bool canCastToBool() const
@@ -541,6 +563,31 @@ std::string Variant::toString() const
 std::wstring Variant::toWString() const
 {
     return to_wstring(holder_->toString());
+}
+
+Variant::Types Variant::type() const
+{
+    return holder_->type();
+}
+
+bool Variant::isBool() const
+{
+    return (holder_->type() == Types::TYPE_BOOL);
+}
+
+bool Variant::isInt() const
+{
+    return (holder_->type() == Types::TYPE_INT);
+}
+
+bool Variant::isDouble() const
+{
+    return (holder_->type() == Types::TYPE_DOUBLE);
+}
+
+bool Variant::isString() const
+{
+    return (holder_->type() == Types::TYPE_STRING);
 }
 
 bool Variant::tryCast(bool &result) const

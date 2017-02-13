@@ -69,6 +69,15 @@ namespace variant {
 class VARIANT_API Variant
 {
 public:
+    /// 保持している型を示します.
+    enum class Types : uint8_t
+    {
+        TYPE_BOOL,    ///< bool 型
+        TYPE_INT,     ///< int 型
+        TYPE_DOUBLE,  ///< double 型
+        TYPE_STRING   ///< std::string 型
+    };
+
     /// デフォルトコンストラクタ.
     ///
     /// 引数無指定でオブジェクトを作成すると
@@ -244,6 +253,24 @@ public:
     ///
     /// 本メソッドからは例外が送出されることはありません(不送出保証)．
     std::wstring toWString() const;
+
+    /// 保持されている元の型情報を返します.
+    ///
+    /// \return 型情報
+    ///
+    ///
+    /// \code
+    ///     Variant vb = true;
+    ///     Variant vi = 100;
+    ///     Variant vd = 100.5;
+    ///     Variant vs = "any;
+    ///
+    ///     std::cout << vb.type() << std::endl; // (VALUE_TYPE_BOOL   = 0)
+    ///     std::cout << vi.type() << std::endl; // (VALUE_TYPE_INT    = 1)
+    ///     std::cout << vd.type() << std::endl; // (VALUE_TYPE_DOUBLE = 2)
+    ///     std::cout << vs.type() << std::endl; // (VALUE_TYPE_STRING = 3)
+    /// \endcode
+    Types type() const;
 
     /// 保持されている元の型が bool 型のとき true を返します
     ///
