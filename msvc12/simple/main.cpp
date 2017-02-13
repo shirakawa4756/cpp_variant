@@ -1,9 +1,10 @@
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <iomanip>
 #include <limits>
 #include <type_traits>
-#include <variant.hpp>
+#include <variant/variant.hpp>
 
 int main()
 {

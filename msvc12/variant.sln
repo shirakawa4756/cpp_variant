@@ -13,6 +13,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_Deploy", "_Deploy.vcxproj"
 		{7BD976FB-A78C-491F-9023-9CED59AAD5E9} = {7BD976FB-A78C-491F-9023-9CED59AAD5E9}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{F89672D4-13A9-453D-866F-09671A485A47}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple", "simple\simple.vcxproj", "{DFDA1D9D-85E6-40DD-A20D-D729BEF42D9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -45,8 +49,17 @@ Global
 		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Release|Win32.Build.0 = Release|Win32
 		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Release|x64.ActiveCfg = Release|x64
 		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Release|x64.Build.0 = Release|x64
+		{DFDA1D9D-85E6-40DD-A20D-D729BEF42D9D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DFDA1D9D-85E6-40DD-A20D-D729BEF42D9D}.Debug|Win32.Build.0 = Debug|Win32
+		{DFDA1D9D-85E6-40DD-A20D-D729BEF42D9D}.Debug|x64.ActiveCfg = Debug|x64
+		{DFDA1D9D-85E6-40DD-A20D-D729BEF42D9D}.Release|Win32.ActiveCfg = Release|Win32
+		{DFDA1D9D-85E6-40DD-A20D-D729BEF42D9D}.Release|Win32.Build.0 = Release|Win32
+		{DFDA1D9D-85E6-40DD-A20D-D729BEF42D9D}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DFDA1D9D-85E6-40DD-A20D-D729BEF42D9D} = {F89672D4-13A9-453D-866F-09671A485A47}
 	EndGlobalSection
 EndGlobal
