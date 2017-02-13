@@ -18,7 +18,7 @@
 #include <string>
 #include <memory>
 
-#include "defines.hpp"
+#include "variant/defines.hpp"
 
 namespace variant {
 /// boo, int, double, string の4種の型を柔軟に代入できる多用型です.
