@@ -10,7 +10,7 @@
 /// \file
 /// このクラスには，多用型クラス(variant)のクラス宣言が含まれます．
 ///
-/// \author  shirakawa4756@github.com
+/// \author shirakawa4756@github.com
 ///
 //===----------------------------------------------------------------------===//
 #pragma once

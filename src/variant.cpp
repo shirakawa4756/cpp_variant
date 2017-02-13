@@ -45,6 +45,100 @@ std::wstring to_wstring(const std::string &s)
 }
 #endif
 
+/// 文字列を int64_t へ変換できるか試します.
+///
+/// \param s 文字列
+/// \param[out] result 変換された数値
+/// \return true なら変換に成功した
+///
+/// 文字列(s) を strtoll を用いて int64_t に変換します．
+/// 文字列全体が int64_t を許容する以外は不成功と見なし
+/// false を返します．
+///
+/// 具体例
+/// \code
+///     std::string list[] = {"0", "1", "+10", "-10",
+///                           "100$", "-100$", "+1000$",
+///                           "$1000$"};
+///
+///     for (const auto &s : list) {
+///         int64_t result = -1;
+///         if (tryStringToInt64(s, result)) {
+///             std::cout << "Accept: " << s << " -> " << result << std::endl;
+///         } else {
+///             std::cout << "Deny: " << s << "->" result << std::endl;
+///         }
+///     }
+/// \endcode
+bool tryStringToInt64(const std::string &s, int64_t &result)
+{
+    // 文字列から整数へ変換するときの10進指定
+    //
+    // 10進数で変換することを示します.
+    static const int32_t CONVERTED_BASE_DECIMAL = 10;
+
+    // エラー番号の初期化
+    //
+    // errno は大域変数のため，初期化します．
+    // 0 は成功を示すのでそれ以外で初期化します．
+    errno = 1;
+
+    char *convetedEnd = NULL;
+    const int64_t dst = std::strtoll(s.c_str(), &convetedEnd,
+                                     CONVERTED_BASE_DECIMAL);
+
+    if (errno == ERANGE || *convetedEnd != '\0') {
+        return false;
+    }
+
+    result = dst;
+    return true;
+}
+
+/// 文字列を double へ変換できるか試します.
+///
+/// \param s 文字列
+/// \param[out] result 変換された数値
+/// \return true なら変換に成功した
+///
+/// 文字列(s) を strtoll を用いて double に変換します．
+/// 文字列全体が double を許容する以外は不成功と見なし
+/// false を返します．
+///
+/// 具体例
+/// \code
+///     std::string list[] = { "0", "1", "+10", "-10", "0.0", "1.3", 
+///                            "-1.1", "+10.5", "-10.25", "-1E10",
+///                            "100$", "-100$", "+1000$", "$1000$" };
+///
+///     for (const auto &s : list) {
+///         int64_t result = -1;
+///         if (tryStringToInt64(s, result)) {
+///             std::cout << "Accept: " << s << " -> " << result << std::endl;
+///         } else {
+///             std::cout << "Deny: " << s << "->" result << std::endl;
+///         }
+///     }
+/// \endcode
+bool tryStringToDouble(const std::string &s, double &result)
+{
+    // エラー番号の初期化
+    //
+    // errno は大域変数のため，初期化します．
+    // 0 は成功を示すのでそれ以外で初期化します．
+    errno = 0;
+
+    char *convetedEnd = NULL;
+    const double dst = std::strtod(s.c_str(), &convetedEnd);
+
+    if (errno == ERANGE || *convetedEnd != '\0') {
+        return false;
+    }
+
+    result = dst;
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Variant::Holder
@@ -140,6 +234,7 @@ public:
     IntHolder(const IntHolder &rhs) = default;
     IntHolder& operator=(const IntHolder &rhs) = default;
     IntHolder(int32_t value) : value_(value) {}
+    IntHolder(int64_t value) : value_(value) {}
 
     virtual bool toBool() const
     {
@@ -274,12 +369,20 @@ public:
 
     virtual int64_t toInt() const
     {
-        return std::stoll(str_);
+        int64_t result = 0;
+        if (!tryStringToInt64(str_, result)) {
+            throw std::runtime_error("Bat cast Exception.");
+        }
+        return result;
     }
 
     virtual double toDouble() const
     {
-        return std::stod(str_);
+        double result = 0;
+        if (!tryStringToDouble(str_, result)) {
+            throw std::runtime_error("Bat cast Exception.");
+        }
+        return result;
     }
 
     virtual std::string toString() const
@@ -296,22 +399,15 @@ public:
 
     virtual bool canCastToInt() const
     {
-        try {
-            std::stoll(str_);
-            return true;
-        } catch (...) {
-            return false;
-        }
+        int64_t result = 0;
+        return tryStringToInt64(str_, result);
+
     }
 
     virtual bool canCastToDouble() const
     {
-        try {
-            std::stod(str_);
-            return true;
-        } catch (...) {
-            return false;
-        }
+        double result = 0.0;
+        return tryStringToDouble(str_, result);
     }
 
     virtual std::ostream& writeOstream(std::ostream& os) const
@@ -355,6 +451,11 @@ public:
         return std::make_shared<IntHolder>(value);
     }
 
+    static std::shared_ptr<Holder> make_holder(int64_t value)
+    {
+        return std::make_shared<IntHolder>(value);
+    }
+
     static std::shared_ptr<Holder> make_holder(double value)
     {
         return std::make_shared<DoubleHolder>(value);
@@ -389,6 +490,11 @@ Variant::Variant(bool value)
 
 Variant::Variant(int32_t value)
   : holder_(HolderFactory::make_holder(value))
+{
+}
+
+Variant::Variant(int64_t value)
+    : holder_(HolderFactory::make_holder(value))
 {
 }
 
