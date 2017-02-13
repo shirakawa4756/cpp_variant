@@ -2,8 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="variant">
-      <UniqueIdentifier>{da4766b2-4394-4473-8a61-eb9336e3d2e7}</UniqueIdentifier>
+      <UniqueIdentifier>{6b245d77-c696-49a2-9f11-1e351f86d2a7}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\variant\variant.cpp">
+      <Filter>variant</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\variant\variant.hpp">
@@ -12,10 +17,5 @@
     <ClInclude Include="..\include\variant\defines.hpp">
       <Filter>variant</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\src\variant\variant.cpp">
-      <Filter>variant</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
