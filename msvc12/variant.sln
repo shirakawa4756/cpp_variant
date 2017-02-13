@@ -7,6 +7,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "variant", "variant.vcxproj"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "variant_static_lib", "variant_static_lib.vcxproj", "{5E2105C9-D9D0-47FB-92A8-FC4B39637335}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_Deploy", "_Deploy.vcxproj", "{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5E2105C9-D9D0-47FB-92A8-FC4B39637335} = {5E2105C9-D9D0-47FB-92A8-FC4B39637335}
+		{7BD976FB-A78C-491F-9023-9CED59AAD5E9} = {7BD976FB-A78C-491F-9023-9CED59AAD5E9}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +37,14 @@ Global
 		{5E2105C9-D9D0-47FB-92A8-FC4B39637335}.Release|Win32.Build.0 = Release|Win32
 		{5E2105C9-D9D0-47FB-92A8-FC4B39637335}.Release|x64.ActiveCfg = Release|x64
 		{5E2105C9-D9D0-47FB-92A8-FC4B39637335}.Release|x64.Build.0 = Release|x64
+		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Debug|Win32.Build.0 = Debug|Win32
+		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Debug|x64.ActiveCfg = Debug|x64
+		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Debug|x64.Build.0 = Debug|x64
+		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Release|Win32.ActiveCfg = Release|Win32
+		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Release|Win32.Build.0 = Release|Win32
+		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Release|x64.ActiveCfg = Release|x64
+		{ABBEFD11-2ECF-4108-BAB9-6B27A0538D88}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
