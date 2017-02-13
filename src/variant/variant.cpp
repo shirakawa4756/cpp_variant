@@ -11,7 +11,7 @@
 /// このクラスには，多用型クラス(variant)のクラス実装が含まれます．
 ///
 //===----------------------------------------------------------------------===//
-#include "variant.hpp"
+#include "variant/variant.hpp"
 
 #if defined(_WIN32) || defined(_WIN64) || defined(_MSC_VER)
     #include <Windows.h>
