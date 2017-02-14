@@ -421,12 +421,19 @@ public:
     /// \endcode
     bool tryCast(double &result) const;
 
+    /// 各種キャスト演算子のオーバーロード.
+    ///
+    /// それぞれの型に適した to～が適応されます.
+    /// 変換に失敗したときは例外が送出されることに
+    /// 注意して下さい．
+    /// @{
     operator bool() const;
     operator int32_t() const;
     operator int64_t() const;
     operator double() const;
     operator std::string() const;
     operator std::wstring() const;
+    /// @}
 
     /// 出力ストリームをサポートするために friend 宣言されています
     /// @{
@@ -445,6 +452,89 @@ private:
     std::shared_ptr<const Holder> holder_;
 }; // class class VARIANT_API Variant_
 
+/// Variant の 各種 to メソッドで変換が失敗したことを示す例外です
+///
+/// Variant クラスに置いて， 以下の変換メソッドを実行したとき，
+/// 変換に失敗したことを示します．
+///     toBool, toInt, toInt64, toDouble, toString 
+///
+/// 具体例:
+/// \code
+///     Varaint v = "Don't cast to int64_t.";
+///
+///     try {
+///         int64_t i64 = v.toInt64();
+///     } catch (const bat_variant_cast &e) {
+///         std::cout << e.what() << std::endl;
+///     }
+/// \endcode
+class VARIANT_API bat_variant_cast : public std::bad_cast
+{
+public:
+    /// コンストラクタ
+    /// @{
+    bat_variant_cast() = default;
+    bat_variant_cast(const bat_variant_cast &rhs) = default;
+    bat_variant_cast& operator=(const bat_variant_cast &rhs) = default;
+    /// @{
+
+    /// コンストラクタ; 値など必要な情報すべてを指定します
+    ///
+    /// \param value    変換対象の値
+    /// \param from     変換元の型
+    /// \param to       変換先の型
+    /// \param function 例外が発生した関数名
+    /// \param filename 例外が発生したファイル名
+    /// \param line     例外が発生した行数
+    bat_variant_cast(const std::string &value, Variant::Types from, 
+                     Variant::Types to, std::string function,
+                     std::string filename, int32_t line);
+
+    /// 例外メッセージを表示します.
+    ///
+    /// \return 例外メッセージ
+    virtual const char * what() const;
+
+private:
+    /// what() で表示する例外メッセージを作成します.
+    ///
+    /// \return 例外メッセージ
+    ///
+    std::string makeMessage() const;
+
+    /// 変換対象の数値を示します.
+    ///
+    /// 様々な値を表示するために文字型に変換されています．
+    std::string value_;
+
+    /// 変換対象の元の型情報を示します.
+    Variant::Types from_;
+
+    /// 変換に失敗した変換先の型情報を示します.
+    Variant::Types to_;
+
+    /// 例外発生した関数名を示します
+    std::string function_;
+
+    /// 例外が発生したファイル名を示します.
+    std::string filename_;
+
+    /// 例外が発生した行数を示します.
+    int32_t line_;
+
+    /// what() で表示するメッセージを表示します.
+    std::string whatMessage_;
+};
+
+/// 出力ストリームへの演算子オーバーロード
+///
+/// \param os  出力ストリーム
+/// \param var 多用型
+///
+/// 多用型(var)を出力ストリームへ表示します
+///
+/// @{
 VARIANT_API std::ostream& operator<<(std::ostream& os, const Variant &var);
 VARIANT_API std::wostream& operator<<(std::wostream& wos, const Variant &var);
+/// @}
 } // namespace variant

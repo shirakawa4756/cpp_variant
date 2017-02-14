@@ -17,6 +17,7 @@
     #include <Windows.h>
 #endif
 
+#include <cassert>
 #include <cmath>
 #include <algorithm>
 #include <codecvt>
@@ -138,6 +139,72 @@ bool tryStringToDouble(const std::string &s, double &result)
     result = dst;
     return true;
 }
+
+/// Variant::Types を分かりやすく文字列で示します.
+///
+/// @param t 型情報(Varaint::Types)
+/// @return 型情報のメッセージ
+///
+/// Types の整数値を文字列メッセージへ変換します.
+std::string variantTypesMessage(const Variant::Types &t)
+{
+    switch (t)
+    {
+    case Variant::Types::TYPE_BOOL:
+        return "bool";
+
+    case Variant::Types::TYPE_INT:
+        return "int64_t";
+
+    case Variant::Types::TYPE_DOUBLE:
+        return "double";
+
+    case Variant::Types::TYPE_STRING:
+        return "std::string";
+
+    default:
+        std::stringstream ss;
+        ss << "Invaild Argument(Variant::type). "
+           << "Function: " << __FUNCTION__
+           << "(" << __FILE__ << ":" << __LINE__ << ")";
+        throw std::runtime_error(ss.str());
+    }
+}
+
+/// bat_variant_cast と等価なメッセージを送出するアサート.
+///
+/// \param var       変数値(文字列，整数，実数，真理値が期待されます)
+/// \param from_type 変換元の型情報を示します
+/// \param to_type   変換先の型情報を示します
+///
+/// 関数，ファイル名，行数を展開して例外を送出します.
+#define ASSERT_BAT_VARIANT_CAST(var, from_type, to_type)                    \
+    {                                                                       \
+        assert(false && "Bat Variant Cast.");                               \
+    \
+}
+
+/// bat_variant_cast を送出するマクロ.
+///
+/// \param var       変数値(文字列，整数，実数，真理値が期待されます)
+/// \param from_type 変換元の型情報を示します
+/// \param to_type   変換先の型情報を示します
+///
+/// 関数，ファイル名，行数を展開して例外を送出します.
+#define THROW_BAT_VARIANT_CAST(var, from_type, to_type)                     \
+    {                                                                       \
+        std::stringstream ss;                                               \
+        ss << var;                                                          \
+        throw variant::bat_variant_cast(ss.str(), from_type, to_type,       \
+                                        __FUNCTION__, __FILE__, __LINE__);  \
+    \
+}
+
+#ifndef NDEBUG
+#define BAT_VARIANT_CAST_ERROR ASSERT_BAT_VARIANT_CAST
+#else
+#define BAT_VARIANT_CAST_ERROR THROW_BAT_VARIANT_CAST
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -388,7 +455,7 @@ public:
     {
         int64_t result = 0;
         if (!tryStringToInt64(str_, result)) {
-            throw std::runtime_error("Bat cast Exception.");
+            BAT_VARIANT_CAST_ERROR(str_, type(), Types::TYPE_INT);
         }
         return result;
     }
@@ -397,7 +464,7 @@ public:
     {
         double result = 0;
         if (!tryStringToDouble(str_, result)) {
-            throw std::runtime_error("Bat cast Exception.");
+            BAT_VARIANT_CAST_ERROR(str_, type(), Types::TYPE_DOUBLE);
         }
         return result;
     }
@@ -620,25 +687,21 @@ bool Variant::tryCast(double &result) const
 
 Variant::operator bool() const
 {
-    if (!holder_->canCastToBool()) return false;
     return toBool();
 }
 
 Variant::operator int32_t() const
 {
-    if (!holder_->canCastToInt()) return 0;
     return toInt();
 }
 
 Variant::operator int64_t() const
 {
-    if (!holder_->canCastToInt()) return 0;
     return toInt64();
 }
 
 Variant::operator double() const
 {
-    if (!holder_->canCastToDouble()) return 0.0;
     return toDouble();
 }
 
@@ -650,6 +713,39 @@ Variant::operator std::string() const
 Variant::operator std::wstring() const
 {
     return toWString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// operator<< function( of variant::Variant)
+//
+///////////////////////////////////////////////////////////////////////////////
+bat_variant_cast::bat_variant_cast(const std::string &value,
+        Variant::Types from, Variant::Types to, std::string function,
+        std::string filename, int32_t line)
+  : value_(value), from_(from), to_(to),
+    function_(function), filename_(filename), line_(line)
+{
+    whatMessage_ = makeMessage();
+}
+
+const char* bat_variant_cast::what() const
+{
+    return whatMessage_.c_str();
+}
+
+std::string bat_variant_cast::makeMessage() const
+{
+    std::stringstream ss;
+    ss << "Bat Variant Cast: Value = [" << value_ << "]. "
+        << "Value type "
+        << "from " << variantTypesMessage(from_)
+        << "(Types = " << static_cast<int>(from_) << ") "
+        << "to " << variantTypesMessage(to_)
+        << "(Types = "  << static_cast<int>(to_) << "). "
+        << "Function: " << function_
+        << "(" << filename_ << ":" << line_ << ").";
+    return ss.str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
